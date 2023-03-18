@@ -8,10 +8,6 @@ on:
     branches:
       - 'master'
 
-env:
-  USERNAME: ${{ secrets.OSSRH_USERNAME }}
-  TOKEN: ${{ secrets.OSSRH_TOKEN }}
-
 jobs:
   build:
     name: Build
