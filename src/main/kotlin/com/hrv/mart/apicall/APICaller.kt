@@ -30,4 +30,14 @@ class APICaller(
             .retrieve()
             .bodyToMono(responseClassType)
     }
+    fun <T, U>putRequest(path: String, responseClassType: Class<T>, requestBody: Class<U>): Mono<T> {
+        val webClient = webClientBuilder.baseUrl(path)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .build()
+        return webClient
+            .put()
+            .body(Mono.just(requestBody), requestBody::class.java)
+            .retrieve()
+            .bodyToMono(responseClassType)
+    }
 }
