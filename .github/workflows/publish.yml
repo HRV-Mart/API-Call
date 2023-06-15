@@ -26,7 +26,7 @@ jobs:
         with:
           java-version: 17
       - name: print version
-        run: echo ${{ github.ref }}
+        run: echo ${{ github.ref_name }}
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Publish package
@@ -36,4 +36,4 @@ jobs:
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-          VERSION: ${{ github.ref }}
+          VERSION: ${{ github.ref_name }}
