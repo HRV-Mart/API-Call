@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.hrv.mart"
-version = "0.0.2-beta"
+version = System.getenv("VERSION")
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
