@@ -7,7 +7,8 @@ on:
   push:
     branches:
       - 'master'
-
+env:
+  VERSION: "0.0.1-SNAPSHOT"
 jobs:
   build:
     name: Build

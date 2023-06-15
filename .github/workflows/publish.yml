@@ -15,6 +15,7 @@ on:
 env:
   USERNAME: ${{ secrets.OSSRH_USERNAME }}
   TOKEN: ${{ secrets.OSSRH_TOKEN }}
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -33,3 +34,4 @@ jobs:
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          VERSION: ${{ github.ref }}
