@@ -40,4 +40,11 @@ class APICaller(
             .retrieve()
             .bodyToMono(responseClassType)
     }
+    fun <T>deleteData(path: String, classType: Class<T>): Mono<T> {
+        val webClient = webClientBuilder.baseUrl(path)
+            .build()
+        return webClient.delete()
+            .retrieve()
+            .bodyToMono(classType)
+    }
 }
