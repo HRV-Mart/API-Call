@@ -6,7 +6,9 @@ import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient.Builder
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
+import kotlin.reflect.full.findAnnotation
 
 @Service
 class APICaller(
@@ -16,14 +18,17 @@ class APICaller(
 {
     fun <T>getData(
         path: String,
-        classType: Class<T>,
+        responseClassType: Class<T>,
         response: ServerHttpResponse
     ): Mono<T> {
         val webClient = webClientBuilder.baseUrl(path)
             .build()
         return webClient.get()
             .retrieve()
-            .bodyToMono(classType)
+            .bodyToMono(responseClassType)
+            .onErrorResume {
+                setResponse(response, it as WebClientResponseException, responseClassType)
+            }
     }
     fun <T, U : Any>postRequest(
         path: String,
@@ -39,6 +44,9 @@ class APICaller(
             .body(Mono.just(requestBody), requestBody::class.java)
             .retrieve()
             .bodyToMono(responseClassType)
+            .onErrorResume {
+                setResponse(response, it as WebClientResponseException, responseClassType)
+            }
     }
     fun <T, U : Any>putRequest(
         path: String,
@@ -54,16 +62,31 @@ class APICaller(
             .body(Mono.just(requestBody), requestBody::class.java)
             .retrieve()
             .bodyToMono(responseClassType)
+            .onErrorResume {
+                setResponse(response, it as WebClientResponseException, responseClassType)
+            }
     }
     fun <T>deleteData(
         path: String,
-        classType: Class<T>,
+        responseClassType: Class<T>,
         response: ServerHttpResponse
     ): Mono<T> {
         val webClient = webClientBuilder.baseUrl(path)
             .build()
         return webClient.delete()
             .retrieve()
-            .bodyToMono(classType)
+            .bodyToMono(responseClassType)
+            .onErrorResume {
+                setResponse(response, it as WebClientResponseException, responseClassType)
+            }
+    }
+    private fun <T >setResponse(response: ServerHttpResponse, error: WebClientResponseException, responseClassType: Class<T>,): Mono<T> {
+        response.statusCode = error.statusCode
+        return if (responseClassType::class.java == String::class.java) {
+            val message = (error.message ?: "") as T
+            Mono.just(message)
+        } else {
+            Mono.empty()
+        }
     }
 }
