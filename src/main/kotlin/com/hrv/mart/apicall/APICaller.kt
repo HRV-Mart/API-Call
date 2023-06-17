@@ -3,6 +3,7 @@ package com.hrv.mart.apicall
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient.Builder
 import reactor.core.publisher.Mono
@@ -13,14 +14,23 @@ class APICaller(
     private val webClientBuilder: Builder
 )
 {
-    fun <T>getData(path: String, classType: Class<T>): Mono<T> {
+    fun <T>getData(
+        path: String,
+        classType: Class<T>,
+        response: ServerHttpResponse
+    ): Mono<T> {
         val webClient = webClientBuilder.baseUrl(path)
             .build()
         return webClient.get()
             .retrieve()
             .bodyToMono(classType)
     }
-    fun <T, U : Any>postRequest(path: String, responseClassType: Class<T>, requestBody: U): Mono<T> {
+    fun <T, U : Any>postRequest(
+        path: String,
+        responseClassType: Class<T>,
+        requestBody: U,
+        response: ServerHttpResponse
+    ): Mono<T> {
         val webClient = webClientBuilder.baseUrl(path)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
@@ -30,7 +40,12 @@ class APICaller(
             .retrieve()
             .bodyToMono(responseClassType)
     }
-    fun <T, U : Any>putRequest(path: String, responseClassType: Class<T>, requestBody: U): Mono<T> {
+    fun <T, U : Any>putRequest(
+        path: String,
+        responseClassType: Class<T>,
+        requestBody: U,
+        response: ServerHttpResponse
+    ): Mono<T> {
         val webClient = webClientBuilder.baseUrl(path)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
@@ -40,7 +55,11 @@ class APICaller(
             .retrieve()
             .bodyToMono(responseClassType)
     }
-    fun <T>deleteData(path: String, classType: Class<T>): Mono<T> {
+    fun <T>deleteData(
+        path: String,
+        classType: Class<T>,
+        response: ServerHttpResponse
+    ): Mono<T> {
         val webClient = webClientBuilder.baseUrl(path)
             .build()
         return webClient.delete()
