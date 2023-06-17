@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient.Builder
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
-import java.time.Duration
-import java.time.temporal.ChronoUnit
 import kotlin.reflect.full.findAnnotation
 
 @Service
@@ -21,20 +19,13 @@ class APICaller(
     fun <T>getData(
         path: String,
         responseClassType: Class<T>,
-        response: ServerHttpResponse,
-        isCacheable: Boolean = false
+        response: ServerHttpResponse?
     ): Mono<T> {
         val webClient = webClientBuilder.baseUrl(path)
             .build()
-        val duration =
-            if (isCacheable)
-                2L
-            else
-                0L
         return webClient.get()
             .retrieve()
             .bodyToMono(responseClassType)
-            .cache(Duration.of(duration, ChronoUnit.SECONDS))
             .onErrorResume {
                 setResponse(response, it as WebClientResponseException, responseClassType)
             }
@@ -89,8 +80,10 @@ class APICaller(
                 setResponse(response, it as WebClientResponseException, responseClassType)
             }
     }
-    private fun <T >setResponse(response: ServerHttpResponse, error: WebClientResponseException, responseClassType: Class<T>,): Mono<T> {
-        response.statusCode = error.statusCode
+    private fun <T >setResponse(response: ServerHttpResponse?, error: WebClientResponseException, responseClassType: Class<T>,): Mono<T> {
+        if (response != null) {
+            response.statusCode = error.statusCode
+        }
         return if (responseClassType::class.java == String::class.java) {
             val message = (error.message ?: "") as T
             Mono.just(message)
